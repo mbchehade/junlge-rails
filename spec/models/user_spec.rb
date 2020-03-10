@@ -46,9 +46,52 @@ RSpec.describe User, type: :model do
       end
     end
 
+    after(:all) do
+      User.delete(@takenEmail.id)
+    end
+
   end
 
   describe '.authenticate_with_credentials' do
-    # examples for this class method here
+    before(:all) do
+      @user = User.create(:email => 'Testy@teSt.com', :password => 'password', :password_confirmation => 'password')
+    end
+
+    describe 'correct email and password' do
+      it 'should return the user object' do
+        @session = @user.authenticate_with_credentials('testy@test.com', 'password')
+
+        expect(@session).to eql(@user)
+      end
+    end
+
+    describe 'incorrect email and password' do
+      it 'should return nil' do
+        @session = @user.authenticate_with_credentials('testy@test.com', 'not the password')
+
+        expect(@session).to be_nil
+      end
+    end
+
+    describe 'correct email and password but case insensitive email' do
+      it 'should return the user object' do
+        @session = @user.authenticate_with_credentials('testy@test.COM', 'password')
+
+        expect(@session).to eql(@user)
+      end
+    end
+
+    describe 'correct email and password but white space around email' do
+      it 'should return the user object' do
+        @session = @user.authenticate_with_credentials('  testy@test.com  ', 'password')
+
+        expect(@session).to eql(@user)
+      end
+    end
+
+    after(:all) do
+      User.delete(@user.id)
+    end
+
   end
 end
